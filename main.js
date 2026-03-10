@@ -4,6 +4,21 @@ import { VibeKanbanWebCompanion } from 'vibe-kanban-web-companion';
 let todos = [];
 let nextId = 1;
 
+const STORAGE_KEY = 'todos';
+
+function saveTodos() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ todos, nextId }));
+}
+
+function loadTodos() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+        const parsed = JSON.parse(stored);
+        todos = parsed.todos;
+        nextId = parsed.nextId;
+    }
+}
+
 // Current filter (Feature 2)
 let currentFilter = 'all';
 
@@ -28,6 +43,7 @@ function init() {
         btn.addEventListener('click', () => setFilter(btn.dataset.filter));
     });
 
+    loadTodos();
     renderTodos();
 }
 
@@ -50,6 +66,7 @@ function addTodo() {
     });
 
     input.value = '';
+    saveTodos();
     renderTodos();
 }
 
@@ -57,12 +74,14 @@ function toggleTodo(id) {
     const todo = todos.find(t => t.id === id);
     if (todo) {
         todo.completed = !todo.completed;
+        saveTodos();
         renderTodos();
     }
 }
 
 function deleteTodo(id) {
     todos = todos.filter(t => t.id !== id);
+    saveTodos();
     renderTodos();
 }
 
